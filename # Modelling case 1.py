@@ -5,8 +5,8 @@ import numpy as np
 #Constants
 pressure_mmHg = 70  #mmHg
 pressure_Pa = pressure_mmHg * 133.322368  # Convert mmHg to Pa
-young_modulus = 193000  #MPa
-yield_strength = 250  #MPa
+young_modulus = 193e9  #MPa
+yield_strength = 172.369e6 #Pa
 outer_diameter = 35  #mm
 inner_diameters = [30, 31, 32, 33, 34, 34.5, 34.6, 34.7, 34.8]  #mm
 
