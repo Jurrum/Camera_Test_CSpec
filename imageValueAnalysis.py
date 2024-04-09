@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 from scipy.stats import pearsonr, spearmanr
 
 # Load the dataset
-data_path = r'\image_analysis_results_VIA.csv'  
+data_path = r'C:\Users\Gebruiker\Documents\[-] Development\Camera_Test_CSpec\image_analysis_results_Colpo.csv'  
 data = pd.read_csv(data_path)
 
 # Basic Descriptive Statistics
