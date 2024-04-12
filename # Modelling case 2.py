@@ -1,32 +1,113 @@
+"""
+Here we calculate the deformation for a droptest of the product
+
+- The open cylinder is assumed to be dropped vertically onto its side. 
+This means the impact happens along the cylindrical wall.
+- The impact point is assumed to be a line or narrow region where the cylinder first contacts the ground, 
+depending on how the cylinder tilts upon impact.
+- This kind of impact induces a bending moment in the wall of the cylinder at the point of impact, 
+likely causing it to deform inward at that point.
+
+"""
+
 import numpy as np
+import pandas as pd
 
-# Example parameters - replace with your actual measurements and material properties
-torque_applied = 10  # Nm, example torque applied to the screw thread
-lever_arm_length = 0.05  # m, distance from the hinge axis to the point of force application
-frequency_of_operation = 2  # operations per second, estimate based on typical use
-material_fatigue_strength_coefficient = 900e6  # Pa, for the specified material
-material_fatigue_strength_exponent = -0.12  # for the specified material
-safety_factor = 1.5  # Chosen based on engineering judgment
+# Constants
+young_modulus = 193e9  # Pa
+yield_strength = 172.369e6  # Pa
+outer_diameter = 35  # mm
+wall_thicknesses = [1, 2, 3]  # mm
+drop_heights = [0.5, 0.75, 0.8, 1.0, 1.5]  # meters
+density = 7800  # kg/m^3
+g = 9.81  # m/s^2
 
-# Calculate resultant forces at the hinge points
-# Assuming direct linear relationship between torque applied and force at the hinge
-force_at_hinge = torque_applied / lever_arm_length
+# Function to calculate mass
+def calculate_mass(outer_diameter, wall_thickness):
+    inner_diameter = outer_diameter - 2 * wall_thickness
+    outer_radius = outer_diameter / 2000
+    inner_radius = inner_diameter / 2000
+    volume = np.pi * (outer_radius**2 - inner_radius**2) * 1.0
+    mass = density * volume
+    return mass
 
-# Estimate stress range at the hinge - this requires more detailed mechanical analysis or FEA
-# Placeholder for stress calculation - replace with actual stress analysis results
-stress_range = force_at_hinge / (np.pi * (lever_arm_length ** 2))  # Simplified assumption
+# Data container
+data = []
 
-# Adjust for stress concentration factor (SCF) - requires empirical data or detailed FEA
-scf = 2.0  # Example SCF for a similar hinge connection geometry
-adjusted_stress_range = stress_range * scf
+# Process each combination of parameters
+for wall_thickness in wall_thicknesses:
+    mass = calculate_mass(outer_diameter, wall_thickness)
+    inner_diameter = outer_diameter - 2 * wall_thickness
+    for height in drop_heights:
+        PE = mass * g * height
+        W = np.pi * ((outer_diameter / 2000)**3) * (wall_thickness / 1000) / 4
+        M = PE  # Assume moment is proportional to potential energy
+        sigma = M / W
+        
+        # Elastic deformation (curvature)
+        if sigma < yield_strength:
+            curvature = sigma / young_modulus
+            deformation = curvature * (outer_diameter / 2000)  # Small deformation approximation
+            plastic_deformation = "None"
+        else:
+            # Assuming linear plastic behavior for simplicity
+            # Plastic deformation is calculated with an arbitrary factor to show increased deformation
+            elastic_deformation = yield_strength / young_modulus * (outer_diameter / 2000)
+            additional_plastic_deformation = (sigma - yield_strength) / young_modulus * 1.5 * (outer_diameter / 2000)
+            deformation = elastic_deformation
+            plastic_deformation = additional_plastic_deformation
 
-# Calculate fatigue life using the S-N curve method
-cycles_to_failure = (material_fatigue_strength_coefficient / adjusted_stress_range) ** (1 / material_fatigue_strength_exponent)
+        # Save results
+        data.append({
+            'Drop Height (m)': height,
+            'Inner Diameter (mm)': inner_diameter,
+            'Wall Thickness (mm)': wall_thickness,
+            'Potential Energy (J)': PE,
+            'Bending Stress (Pa)': sigma,
+            'Elastic Deformation (m)': deformation,
+            'Plastic Deformation (m)': plastic_deformation
+        })
 
-# Apply safety factor
-safe_cycles_to_failure = cycles_to_failure / safety_factor
+# Convert data to DataFrame for nice table display
+results_df = pd.DataFrame(data)
+print(results_df.to_string(index=False))
 
-print(f"Estimated safe cycles to failure: {safe_cycles_to_failure:.0f}")
+
+
+
+'''
+Previous fatigue test script
+'''
+
+# import numpy as np
+
+# # Example parameters - replace with your actual measurements and material properties
+# torque_applied = 10  # Nm, example torque applied to the screw thread
+# lever_arm_length = 0.05  # m, distance from the hinge axis to the point of force application
+# frequency_of_operation = 2  # operations per second, estimate based on typical use
+# material_fatigue_strength_coefficient = 900e6  # Pa, for the specified material
+# material_fatigue_strength_exponent = -0.12  # for the specified material
+# safety_factor = 1.5  # Chosen based on engineering judgment
+
+# # Calculate resultant forces at the hinge points
+# # Assuming direct linear relationship between torque applied and force at the hinge
+# force_at_hinge = torque_applied / lever_arm_length
+
+# # Estimate stress range at the hinge - this requires more detailed mechanical analysis or FEA
+# # Placeholder for stress calculation - replace with actual stress analysis results
+# stress_range = force_at_hinge / (np.pi * (lever_arm_length ** 2))  # Simplified assumption
+
+# # Adjust for stress concentration factor (SCF) - requires empirical data or detailed FEA
+# scf = 2.0  # Example SCF for a similar hinge connection geometry
+# adjusted_stress_range = stress_range * scf
+
+# # Calculate fatigue life using the S-N curve method
+# cycles_to_failure = (material_fatigue_strength_coefficient / adjusted_stress_range) ** (1 / material_fatigue_strength_exponent)
+
+# # Apply safety factor
+# safe_cycles_to_failure = cycles_to_failure / safety_factor
+
+# print(f"Estimated safe cycles to failure: {safe_cycles_to_failure:.0f}")
 
 
 """ second iteration of the script """

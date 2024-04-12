@@ -2,10 +2,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+'''
+Here we calculate the total deformation due to the pressure acting on the outer surface of the cylinder
+'''
+
 #Constants
 pressure_mmHg = 70  #mmHg
 pressure_Pa = pressure_mmHg * 133.322368  # Convert mmHg to Pa
-young_modulus = 193e9  #MPa
+young_modulus = 193e9  #Pa
 yield_strength = 172.369e6 #Pa
 outer_diameter = 35  #mm
 inner_diameters = [30, 31, 32, 33, 34, 34.5, 34.6, 34.7, 34.8]  #mm
@@ -45,7 +49,7 @@ for D_i in inner_diameters:
     results.append((wall_thickness, deformation, von_mises_stress, yield_met, thin_walled))
 
 #Dataframe to display results
-df = pd.DataFrame(results, columns=['Wall Thickness (mm)', 'Deformation (mm)', 'Von Mises Stress (MPa)', 'Yield Strength Met', 'Thin-Walled Assumption Valid'])
+df = pd.DataFrame(results, columns=['Wall Thickness (mm)', 'Deformation (mm)', 'Von Mises Stress (MPa)', 'Yield Strength Met', 'Thin-Wall'])
 df.index = sizes
 print(df)
 
