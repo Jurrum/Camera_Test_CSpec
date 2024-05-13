@@ -9,6 +9,7 @@ Here we calculate the total deformation due to the pressure acting on the outer 
 #Constants
 pressure_mmHg = 70  #mmHg
 pressure_Pa = pressure_mmHg * 133.322368  # Convert mmHg to Pa
+print(f"Pressure: {pressure_Pa} Pa")
 young_modulus = 193e9  #Pa
 yield_strength = 172.369e6 #Pa
 outer_diameter = 35  #mm
